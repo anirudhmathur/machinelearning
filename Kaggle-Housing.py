@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import  r2_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.metrics import r2_score
 
 df = pd.read_csv("train.csv")
 print(df.head())
@@ -97,10 +99,71 @@ print(df.tail())
 #for col in cat_fet:
  #   df[col] = df[col].astype('category').cat.codes + 1
 for col in cat_fet:
+    print('*'*30)
     print(type(df[col]))
-    le = LabelEncoder()
-    df[col] = np.array(le.fit_transform(df[col]))
-    #print(df[col])
-
+    le = LabelEncoder()    
+    print(df[col])
+    #df[col] = np.array(le.fit_transform(df[col]))
+    df[col] = df[col].astype('category').cat.codes + 1
+    print(df[col])
+    print('*'*30)
 
 print(df.head())
+
+
+#create training data
+X_train = df.iloc[:,:-1].values
+print(X_train)
+y = df.iloc[:,-1].values
+print(y)
+
+regressor = DecisionTreeRegressor(random_state = 0)
+regressor.fit(X_train, y)
+print(regressor.score(X_train,y))
+
+############################Test Data**************************************
+df_test = pd.read_csv("test.csv")
+print(df_test)
+
+features_test = []
+fetures_test = list(df_test.columns) 
+
+#The numeric features
+num_fet_test = []
+num_fet_test = list(df_test.select_dtypes(exclude = 'object').columns)
+
+#The Categorical features
+cat_fet_test = []
+cat_fet_test = list(df_test.select_dtypes(include = 'object').columns)
+
+for col in cat_fet_test:
+    if df_test[col].isnull().sum() > 0:
+        df_test[col] = df_test[col].fillna('Unknown')
+
+
+for col in num_fet_test:
+    if df_test[col].isnull().sum() > 0:
+        feature_mean = df_test[col].mean()
+        df_test[col].replace(np.nan,feature_mean,inplace = True)
+
+for col in cat_fet_test:
+    df_test[col] = df_test[col].astype('category').cat.codes + 1
+
+print(df_test.head())
+
+X_test = df_test.iloc[:, :].values
+#y_test = df_test.iloc[:, -1].values
+y_pred = regressor.predict(X_test)
+#print(r2_score(y_test, y_pred))
+#np.set_printoptions(precision=2)
+#print(np.concatenate((y_pred.reshape(len(y_pred),1), y_test.reshape(len(y_test),1)),1))
+print(y_pred)
+
+df_submission = pd.read_csv("sample_submission.csv")
+y_submission = df_submission.iloc[:, -1].values
+print(y_submission)
+
+#r2 score 
+print("r2 score   ",  r2_score(y_submission, y_pred))
+np.set_printoptions(precision=2)
+print(np.concatenate((y_pred.reshape(len(y_pred),1), y_submission.reshape(len(y_submission),1)),1))

@@ -5,6 +5,9 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
 import matplotlib.pyplot as plt
 from sklearn.metrics import  r2_score
+from sklearn.model_selection import train_test_split
+
+
 ndArray = np.array([[2.81,5.62],
 [7.14,8.00],
 [2.72,5.44],
@@ -110,10 +113,24 @@ ndArray = np.array([[2.81,5.62],
 X = ndArray[:,0:-1]
 y = ndArray[:,-1]
 
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 0)
+
 from sklearn.tree import DecisionTreeRegressor
 regressor = DecisionTreeRegressor(random_state = 0)
-regressor.fit(X, y)
+regressor.fit(X_train, y_train)
 #timeCharged = float(input())
+y_pred = regressor.predict(X_test)
+print(y_pred[0])
+print(np.concatenate((y_pred.reshape(len(y_pred),1), y_test.reshape(len(y_test),1)),1))
+print(r2_score(y_test, y_pred))
+
+#poly_reg = PolynomialFeatures(degree = 4)
+#X_poly = poly_reg.fit_transform(X)
+#linear_reg = LinearRegression()
+#linear_reg.fit(X_poly,y)
+#timeCharged = float(input())
+#testData_predict = linear_reg.predict(poly_reg.fit_transform([[timeCharged]]))
 
 X_grid = np.arange(min(X), max(X))
 X_grid = X_grid.reshape((len(X_grid), 1))
@@ -124,6 +141,10 @@ plt.xlabel('Position level')
 plt.ylabel('Salary')
 plt.show()
 
-print(r2_score(y,regressor.predict(X)))
+y_prdict_t = regressor.predict([[0.02]])
+print(y_prdict_t[0])
 
-#print(testData_predict)
+
+
+
+
