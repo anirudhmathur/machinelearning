@@ -137,7 +137,7 @@ np.set_printoptions(precision=2)
 print(np.concatenate((y_pred.reshape(len(y_pred),1), y_test.reshape(len(y_test),1)),1))
 r2score = r2_score(y_test, y_pred)
 print("r2_score is   ",r2score)
-exit()
+#exit()
 
 ############################Test Data**************************************
 df_test = pd.read_csv("test.csv")
@@ -169,12 +169,13 @@ for col in cat_fet_test:
 
 print(df_test.head())
 
-X_test = df_test.iloc[:, :].values
+
 cols = ['Alley', 'Fence', 'FireplaceQu', 'RoofStyle','RoofMatl','Exterior1st','Exterior2nd','MasVnrType',
         'ExterQual','ExterCond','Foundation','BsmtQual','BsmtCond','BsmtExposure','BsmtFinType1','BsmtFinType2',
         'Heating','HeatingQC','CentralAir','Electrical','KitchenQual','Functional','FireplaceQu','GarageType',
         'GarageFinish','GarageQual','GarageCond','PavedDrive','PoolQC','Fence','MiscFeature','SaleType','SaleCondition']
-X_test = df[cols]
+#X_test = df[cols]
+X_test = df_test.iloc[:, :].values
 
 #y_test = df_test.iloc[:, -1].values
 y_pred = regressor.predict(X_test)
@@ -182,6 +183,10 @@ y_pred = regressor.predict(X_test)
 #np.set_printoptions(precision=2)
 #print(np.concatenate((y_pred.reshape(len(y_pred),1), y_test.reshape(len(y_test),1)),1))
 print(y_pred)
+
+submission = pd.read_csv("sample_submission.csv")
+submission['SalePrice'] = y_pred
+submission.to_csv('submission_RF.csv', index=False)
 
 
 
