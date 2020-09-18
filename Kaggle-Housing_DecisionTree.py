@@ -10,6 +10,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import r2_score
+from sklearn.model_selection import train_test_split
 
 df = pd.read_csv("train.csv")
 print(df.head())
@@ -112,14 +113,23 @@ print(df.head())
 
 
 #create training data
-X_train = df.iloc[:,:-1].values
-print(X_train)
+X = df.iloc[:,:-1].values
+print(type(X))
 y = df.iloc[:,-1].values
-print(y)
+print(type(y))
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 0)
 
 regressor = DecisionTreeRegressor(random_state = 0)
-regressor.fit(X_train, y)
-print(regressor.score(X_train,y))
+regressor.fit(X_train, y_train)
+print(regressor.score(X_train,y_train))
+
+y_pred = regressor.predict(X_test)
+np.set_printoptions(precision=2)
+print(np.concatenate((y_pred.reshape(len(y_pred),1), y_test.reshape(len(y_test),1)),1))
+r2score = r2_score(y_test, y_pred)
+print("r2_score is   ",r2score)
+exit()
 
 ############################Test Data**************************************
 df_test = pd.read_csv("test.csv")
@@ -159,11 +169,15 @@ y_pred = regressor.predict(X_test)
 #print(np.concatenate((y_pred.reshape(len(y_pred),1), y_test.reshape(len(y_test),1)),1))
 print(y_pred)
 
-df_submission = pd.read_csv("sample_submission.csv")
-y_submission = df_submission.iloc[:, -1].values
-print(y_submission)
+#df_submission = pd.read_csv("sample_submission.csv")
+#y_submission = df_submission.iloc[:, -1].values
+#print(y_submission)
 
 #r2 score 
-print("r2 score   ",  r2_score(y_submission, y_pred))
-np.set_printoptions(precision=2)
-print(np.concatenate((y_pred.reshape(len(y_pred),1), y_submission.reshape(len(y_submission),1)),1))
+#print("r2 score   ",  r2_score(y_submission, y_pred))
+#np.set_printoptions(precision=2)
+#print(np.concatenate((y_pred.reshape(len(y_pred),1), y_submission.reshape(len(y_submission),1)),1))
+
+submission = pd.read_csv("sample_submission.csv")
+submission['SalePrice'] = y_pred
+submission.to_csv('submission_DT.csv', index=False)
